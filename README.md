@@ -1,109 +1,142 @@
-# claude-agent-development-skill
+# Agent Development Skill
 
-A Claude Code skill for designing, creating, configuring, and validating specialized AI agents.
+A Claude Code skill for designing, creating, testing, and refining specialized agents. It covers agent file structure, YAML frontmatter, trigger descriptions, system prompts, tool permissions, examples, and practical validation.
 
-## Overview
+The goal is to create agents with a narrow responsibility, clear activation conditions, minimum necessary access, and behavior that can be tested.
 
-An agent is useful when a task needs a focused system prompt, defined tools, clear triggering conditions, and independent execution boundaries. This skill explains how to structure agent definitions, write effective descriptions, choose tools, and test whether an agent activates for the intended requests.
+## What This Skill Covers
 
-## What It Covers
+- Agent file layout and host-specific frontmatter.
+- Naming conventions and discriminative descriptions.
+- Trigger examples, including positive and negative cases.
+- System prompt structure, workflows, and output contracts.
+- Model, color, and tool configuration where supported.
+- Agent creation patterns and reusable examples.
+- Static validation and trigger-example checks.
+- Prompt refinement based on observed activation and output failures.
 
-- Agent file structure and YAML frontmatter.
-- Naming and description design.
-- Triggering conditions and example prompts.
-- System prompt organization.
-- Tool permissions and capability boundaries.
-- Model and presentation configuration where supported.
-- Agent examples and reusable patterns.
-- Validation and trigger testing.
+## When to Use It
 
-## Agent Design Principles
+Use this skill when creating or improving Claude Code agents or subagents, writing an agent definition, designing a system prompt, refining when-to-use descriptions, restricting tool permissions, or testing whether an agent activates in appropriate situations.
 
-### Define a Narrow Responsibility
-
-An agent should have a clear job and an understandable boundary. Avoid descriptions that overlap with every other agent in the project.
-
-### Write Specific Trigger Conditions
-
-Describe the tasks, user phrases, and contexts that should activate the agent. Include examples that distinguish it from adjacent agents.
-
-### Make the System Prompt Operational
-
-Specify the workflow, expected inputs, output format, constraints, and failure behavior. Avoid vague instructions such as "be an expert" without concrete expectations.
-
-### Limit Tool Access
-
-Grant only the tools required for the agent's responsibilities. Treat file writes, shell commands, network actions, and destructive operations as explicit capabilities.
-
-### Validate Before Deployment
-
-Check frontmatter, required fields, prompt structure, and representative trigger cases.
+This repository documents a particular agent configuration format. Confirm which fields, model identifiers, colors, and tool names are supported by the host application version being used. A passing local check does not prove that a host will accept every field or that an LLM will select the agent correctly.
 
 ## Installation
 
-```bash
+~~~bash
 git clone https://github.com/Brajesh31/claude-agent-development-skill.git ~/.claude/skills/agent-development
-```
+~~~
 
-## Usage
+Invoke the skill in Claude Code:
 
-Invoke the skill when creating or improving an agent:
-
-```text
+~~~text
 /agent-development
-```
+~~~
 
-Provide the agent's intended responsibility, target users, trigger examples, available tools, and expected output.
+## Recommended Development Workflow
 
-## Agent Development Workflow
+1. **Write the job statement.** Describe the one responsibility the agent should own.
+2. **Set boundaries.** List adjacent tasks that should remain with the main assistant or another agent.
+3. **Draft the trigger description.** Make it specific enough to distinguish the agent from alternatives.
+4. **Add representative examples.** Include direct requests, realistic variations, and cases where the agent should not activate.
+5. **Design the system prompt.** Define role, required inputs, operating procedure, quality standards, output structure, and failure handling.
+6. **Apply least privilege.** Give the agent only the tools needed for its job.
+7. **Validate configuration.** Check frontmatter, required fields, identifiers, and prompt presence.
+8. **Test activation.** Run positive and negative scenarios in the actual host environment.
+9. **Inspect behavior.** Check task completion, tool use, accuracy, and adherence to constraints.
+10. **Revise based on evidence.** Fix observed false positives, false negatives, or output failures.
 
-1. Define the task the agent should own.
-2. Identify tasks it must not handle.
-3. Write a concise, discriminative description.
-4. Define the agent's operating procedure.
-5. Select the minimum required tools.
-6. Add examples for expected activation and non-activation.
-7. Validate the configuration.
-8. Test trigger behavior with representative prompts.
-9. Review output quality and tool boundaries.
-10. Refine the description and prompt based on observed failures.
+## Agent Design Principles
 
-## Example Agent Structure
+### Keep the Scope Narrow
 
-```text
-agents/
-└── specialist.md
-```
+An agent that claims to handle everything is difficult to trigger reliably and difficult to evaluate. Define a clear primary job and make exclusions explicit.
 
-A typical agent file contains YAML frontmatter followed by a Markdown system prompt. Exact fields and supported values depend on the agent host and its version.
+### Make Triggers Discriminative
 
-## Validation Utilities
+Use examples that reflect actual user language. Include both requests that should trigger the agent and nearby requests that should not. Avoid generic examples that could describe several agents.
 
-The repository includes scripts for checking agent definitions and trigger examples:
+### Make Prompts Operational
 
-```bash
-bash scripts/validate-agent.sh
-bash scripts/test-agent-trigger.sh
-```
+A useful system prompt explains what to inspect, which steps to follow, how to handle missing information, what tools may be used, and what a complete result looks like.
 
-These checks help identify structural problems. Static validation does not prove that an agent will activate correctly or behave reliably at runtime.
+### Follow Least Privilege
 
-## Repository Contents
+Prefer read-only tools for analysis tasks. Add write, shell, network, or destructive capabilities only when the responsibility genuinely requires them. Approval and confirmation requirements should be explicit for consequential actions.
 
-- `SKILL.md`: Main agent-development guidance.
-- `examples/`: Agent definitions and creation examples.
-- `references/`: Prompt, structure, and trigger guidance.
-- `scripts/validate-agent.sh`: Agent structure validation.
-- `scripts/test-agent-trigger.sh`: Static trigger-example checks.
-- `README.md`: Workflow and installation guidance.
+### Test Runtime Behavior
+
+Static checks can detect malformed files. They cannot establish whether the host loads the agent, whether the description triggers correctly, or whether the agent performs well on real tasks.
+
+## Validation Scripts
+
+Run the structural validator against an agent definition:
+
+~~~bash
+bash scripts/validate-agent.sh agents/example-agent.md
+~~~
+
+Run the static trigger-example check:
+
+~~~bash
+bash scripts/test-agent-trigger.sh agents/example-agent.md
+~~~
+
+Both scripts accept a path to an agent Markdown file. The trigger script checks that the description contains at least two structured examples. Neither script invokes Claude or performs a live trigger test.
+
+## Included Resources
+
+- [Agent design brief](resources/agent-design-brief.md): define scope, users, triggers, tools, inputs, and outputs before drafting.
+- [Trigger test matrix](resources/trigger-test-matrix.md): build positive, negative, and ambiguous activation scenarios.
+- [Agent release checklist](resources/agent-release-checklist.md): review configuration, permissions, runtime behavior, and maintenance before sharing.
+
+## Existing Examples and References
+
+| Path | Purpose |
+|---|---|
+| [examples/agent-creation-prompt.md](examples/agent-creation-prompt.md) | Reusable prompt for AI-assisted agent creation |
+| [examples/complete-agent-examples.md](examples/complete-agent-examples.md) | Full agent examples and patterns |
+| [references/agent-creation-system-prompt.md](references/agent-creation-system-prompt.md) | Agent creation system prompt reference |
+| [references/system-prompt-design.md](references/system-prompt-design.md) | Prompt structure and writing guidance |
+| [references/triggering-examples.md](references/triggering-examples.md) | Trigger example patterns and common mistakes |
+| [scripts/validate-agent.sh](scripts/validate-agent.sh) | Static structure and field checks |
+| [scripts/test-agent-trigger.sh](scripts/test-agent-trigger.sh) | Static checks for trigger example structure |
+
+## Repository Structure
+
+~~~text
+claude-agent-development-skill/
+├── SKILL.md
+├── README.md
+├── LICENSE
+├── examples/
+│   ├── agent-creation-prompt.md
+│   └── complete-agent-examples.md
+├── references/
+│   ├── agent-creation-system-prompt.md
+│   ├── system-prompt-design.md
+│   └── triggering-examples.md
+├── resources/
+│   ├── agent-design-brief.md
+│   ├── agent-release-checklist.md
+│   └── trigger-test-matrix.md
+└── scripts/
+    ├── test-agent-trigger.sh
+    └── validate-agent.sh
+~~~
 
 ## Quality Checklist
 
-- Agent responsibility is narrow and explicit.
-- Trigger description is specific.
-- System prompt defines inputs, steps, and outputs.
-- Tool permissions follow least privilege.
-- Risky actions have suitable approval boundaries.
-- Examples cover both positive and negative triggers.
-- Configuration passes structural validation.
-- Runtime behavior is tested before relying on the agent.
+- The agent has one clear primary responsibility.
+- Its description distinguishes it from related agents.
+- Trigger examples cover expected and unexpected activation.
+- The system prompt defines inputs, process, output, and failure handling.
+- Tool access follows least privilege.
+- Risky actions have explicit authorization boundaries.
+- Configuration passes static validation.
+- Positive and negative activation tests are run in the actual host.
+- Runtime output is reviewed before the agent is relied upon.
+
+## License
+
+Released under the MIT License. Copyright (c) 2026 Brajesh Kumar. See the root LICENSE file for the complete terms.
